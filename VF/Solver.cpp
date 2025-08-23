@@ -2,6 +2,7 @@
 
 #include <cstring>
 #include <iostream>
+#include <iomanip>
 
 namespace VF
 {
@@ -119,35 +120,45 @@ namespace VF
 	{
 		if (m_Lookups)
 		{
+			//	Iterate over all possible counts of missing fields
 			for (unsigned int i = 0; i < max(m_Columns, m_Rows); i++)
 			{
 				unsigned int missingFields = i + 1;	//	Count of fields that are unknown
 				unsigned int possibilities = SQUARE(missingFields + 1);	//	Count of all different possibilities at this count of unknown fields
 
+				//	Allocate array for all possibilities at specific count of missing fields
 				m_Lookups[i] = new unsigned char[possibilities];
 				if (m_Lookups[i] == nullptr)
 					return false;
 				std::memset(m_Lookups[i], 0, sizeof(*m_Lookups[i]) * possibilities);
 
 				unsigned int possIndex = 0;	//	Index into the array of possibilities
+				//	Iterate over all possible volt counts
 				for (unsigned int voltCount = 0; voltCount <= missingFields; voltCount++)
 				{
 					unsigned int pointFields = missingFields - voltCount;	// Count of missing fields that have points
 
-					unsigned char* points = new unsigned char[pointFields];	// Array with the points of each field
+					unsigned char* points = new unsigned char[pointFields];	// Array with the points for each field
 
+					//	Iterate over all possible amounts of missing points
 					for (unsigned int missingPoints = pointFields * 1; missingPoints <= pointFields * 3; missingPoints++)	// Count of points that are missing across all unknown fields
 					{
 						if (voltCount)
 							m_Lookups[i][possIndex] |= MEMO_VOLT;
 
+						//	All fields start with value 1, giving the lowest possible total point count.
 						std::memset(points, 1, sizeof(*points) * pointFields);
 
+#ifdef _DEBUG
+						unsigned int possibilityCount = 0;	// Count of different possibilities that were found, useful only for debugging.
+#endif
 						unsigned int pointTotal = pointFields;	// Count of points across all unknown fields for current attempt at finding valid possibilities
+						//	Iterate over all possible point distributions and take note of those possibilities that yield the correct amount of missing points.
 						while (true)
 						{
 							if (pointTotal < missingPoints)
 							{
+								//	If the point total is less than the amount of missing points, increase the first field from the back that has less than 3 points.
 								for (int j = pointFields - 1; j >= 0; j--)
 								{
 									if (points[j] == 3)
@@ -159,39 +170,64 @@ namespace VF
 
 							pointTotal = 0;
 							unsigned char possibility = 0;	// Possibility of unknown fields
+							//	Iterate over all fields to update the point total and take note which individual points are used in this arrangement.
 							for (unsigned int j = 0; j < pointFields; j++)
 							{
 								pointTotal += points[j];
 								possibility |= points[j] == 1 ? MEMO_1 : (points[j] == 2 ? MEMO_2 : MEMO_3);
 							}
 
+							//	If this point total is too low, continue to the next iteration which will increase the point count by 1.
 							if (pointTotal < missingPoints)
 								continue;
 
-							if (pointTotal == missingPoints)
-							{
-								m_Lookups[i][possIndex] |= possibility;
+							//	Having arrived here, we know we are in a configuration with the correct amount of points, so we include the possibility in the lookup.
+							//	This is done conservatively, meaning for example if this config no longer includes ones, but the previous one did, they are all kept.
+							//	In certain cases this leads to a weaker statement when solving than would be possible, and can be improved with a different lookup design.
+							m_Lookups[i][possIndex] |= possibility;
+#ifdef _DEBUG
+							possibilityCount++;
+#endif
 
-								bool foundNewPossibility = false;
-								for (unsigned int indexOffset = 1; indexOffset < pointFields; indexOffset++)	// Offset between indices of fields which will be compared
+							//	Search for another possibility
+							bool foundNewPossibility = false;	//	Whether a new possibility was found this iteration.
+
+							//	We iterate over all offsets between pairs of 2 fields starting with all pairs of adjacent fields,
+							//	in search for a pair of fields that are more than 1 point apart, to redistribute the points,
+							//	i.e. (MEMO_1, MEMO_3) --> (MEMO_2, MEMO_2).
+							for (unsigned int indexOffset = 1; indexOffset < pointFields; indexOffset++)	// Offset between indices of fields which will be compared
+							{
+								//	Since the lowest field values are in the front, we start with pairs where the larger field is in the back.
+								for (int j = pointFields - 1; j > indexOffset - 1; j--)	//	Index of field which will be compared against field at this index minus the indexOffset
 								{
-									for (int j = pointFields - 1; j > indexOffset - 1; j--)	//	Index of field which will be compared against field at this index minus the indexOffset
+									//	If the field further back is larger by more than 1, decrement its points and increment the other's.
+									if (points[j] > points[j - indexOffset] + 1)
 									{
-										if (points[j] > points[j - indexOffset] + 1)
-										{
-											points[j]--;
-											points[j - indexOffset]++;
-											foundNewPossibility = true;
-											break;
-										}
-									}
-									if (foundNewPossibility)
+										points[j]--;
+										points[j - indexOffset]++;
+										foundNewPossibility = true;
 										break;
+									}
 								}
-								if (!foundNewPossibility)
+								if (foundNewPossibility)
 									break;
 							}
+							if (!foundNewPossibility)
+								break;
 						}
+
+#ifdef _DEBUG
+						std::cout <<
+							"missingFields: " << std::setw(3) << missingFields <<
+							", voltCount: " << std::setw(3) << voltCount <<
+							", missingPoints: " << std::setw(3) << missingPoints <<
+							", possibilityCount: " << std::setw(3) << possibilityCount <<
+							", lookup: " <<
+							(m_Lookups[i][possIndex] & MEMO_1 ? "1" : " ") <<
+							(m_Lookups[i][possIndex] & MEMO_2 ? " 2" : "  ") <<
+							(m_Lookups[i][possIndex] & MEMO_3 ? " 3" : "  ") <<
+							std::endl;
+#endif
 
 						possIndex++;
 					}
