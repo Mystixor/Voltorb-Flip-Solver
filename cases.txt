@@ -1,0 +1,89 @@
+1 missing:	1, 2, 3, v
+
+	solved
+
+
+2 missing:	2, 3, 4, 5, 6, vv, 1v, 2v, 3v
+
+	solved:		2, 6, vv
+	
+	safe:		3, 4, 5
+	
+	unsolved:
+					1v		1-v
+					2v		2-v
+					3v		3-v
+
+
+3 missing:	3, 4, 5, 6, 7, 8, 9, vvv, 1vv, 2vv, 3vv, 2v, 3v, 4v, 5v, 6v
+
+	solved:		3, 9, vvv
+	
+	safe:		4, 5, 6, 7, 8
+	
+	unsolved:
+					1vv		1-v-v
+					2vv		2-v-v
+					3vv		3-v-v
+					2v		1-1-v
+					3v		1-2-v
+					4v		1-3-v, 2-2-v
+					5v		2-3-v
+					6v		3-3-v
+
+
+4 missing:	4, 5, 6, 7, 8, 9, 10, 11, 12, vvvv, 1vvv, 2vvv, 3vvv, 2vv, 3vv, 4vv, 5vv, 6vv, 3v, 4v, 5v, 6v, 7v, 8v, 9v
+
+	solved:		4, 12, vvvv
+	
+	safe:		5, 6, 7, 8, 9, 10, 11
+	
+	unsolved:
+					1vvv	1-v-v-v
+					2vvv	2-v-v-v
+					3vvv	3-v-v-v
+					2vv		1-1-v-v
+					3vv		1-2-v-v
+					4vv		1-3-v-v, 2-2-v-v
+					5vv		2-3-v-v
+					6vv		3-3-v-v
+					3v		1-1-1-v
+					4v		1-1-2-v
+					5v		1-1-3-v, 1-2-2-v
+					6v		1-2-3-v, 2-2-2-v
+					7v		1-3-3-v, 2-2-3-v
+					8v		2-3-3-v
+					9v		3-3-3-v
+
+
+5 missing:	5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, vvvvv, 1vvvv, 2vvvv, 3vvvv, 2vvv, 3vvv, 4vvv, 5vvv, 6vvv, 3vv, 4vv, 5vv, 6vv, 7vv, 8vv, 9vv, 4v, 5v, 6v, 7v, 8v, 9v, 10v, 11v, 12v
+
+	solved:		5, 15, vvvvv
+	
+	safe:		6, 7, 8, 9, 10, 11, 12, 13, 14
+	
+	unsolved:
+					1vvvv	1-v-v-v-v
+					2vvvv	2-v-v-v-v
+					3vvvv	3-v-v-v-v
+					2vvv	1-1-v-v-v
+					3vvv	1-2-v-v-v
+					4vvv	1-3-v-v-v, 2-2-v-v-v
+					5vvv	2-3-v-v-v
+					6vvv	3-3-v-v-v
+					3vv		1-1-1-v-v
+					4vv		1-1-2-v-v
+					5vv		1-1-3-v-v, 1-2-2-v-v
+					6vv		1-2-3-v-v, 2-2-2-v-v
+					7vv		1-3-3-v-v, 2-2-3-v-v
+					8vv		2-3-3-v-v
+					9vv		3-3-3-v-v
+					4v		1-1-1-1-v
+					5v		1-1-1-2-v
+					6v		1-1-1-3-v, 1-1-2-2-v
+					7v		1-1-2-3-v, 1-2-2-2-v
+					8v		1-1-3-3-v, 1-2-2-3-v, 2-2-2-2-v
+					9v		1-2-3-3-v, 2-2-2-3-v
+					10v		1-3-3-3-v, 2-2-3-3-v
+					11v		2-3-3-3-v
+					12v		3-3-3-3-v
