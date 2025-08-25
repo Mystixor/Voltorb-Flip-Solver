@@ -54,8 +54,12 @@ namespace VF
 		//	Repeatedly call Solve() until no more changes are possible, or a contradiction is encountered.
 		void SolveUntilStable();
 
+		bool SolveLookupRecurse(unsigned int level, unsigned int elemCount);
+
+		SOLVE_RESULT Solve(unsigned int index, bool isColumn);
+
 		//	Does one solving iteration over all temporary rows and columns, returns whether anything was changed.
-		SOLVE_RESULT Solve();
+		SOLVE_RESULT SolveAll();
 
 		//	Commit the current temporary solution as the new legal solution.
 		void CommitTemporarySolution();
@@ -76,14 +80,30 @@ namespace VF
 		//  Column-major matrix of the memos of the playing field during a solver loop, may be resetted in case of contradiction
 		unsigned char* const m_MemosTemp;
 
+		unsigned char* const m_PossibilitiesTempIn;
+		unsigned char* const m_PossibilitiesTempOut;
+
+		MEMO_TYPE* const m_LookupTemp;
+
 		//	Column-major matrix showing which fields are user-confirmed and should not be reset by ResetMemos()
 		bool* const m_UserConf;
 
-		//	Array of arrays with the points of each field for each count of unknown fields
-		unsigned char** const m_Lookups;
+		//	Array of arrays (for columns/rows with specific points and volts left) with the counts of the available combinations
+		unsigned int** const m_LookupCounts;
+
+		struct MemoCounts
+		{
+			unsigned char memo1;
+			unsigned char memo2;
+			unsigned char memo3;
+			unsigned char memoV;
+		};
+
+		//	Array of arrays (for columns/rows with specific points and volts left) of arrays with the available combinations
+		MemoCounts*** const m_Lookups;
 
 		unsigned int m_LastUserColumn;
 		unsigned int m_LastUserRow;
-		MEMO_TYPE m_LastUserMemo;
+		unsigned char m_LastUserMemo;
 	};
 }
