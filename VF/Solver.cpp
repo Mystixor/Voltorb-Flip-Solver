@@ -305,39 +305,10 @@ namespace VF
 		}
 	}
 
-	void Solver::SolveUntilStable()
+	void Solver::CommitTemporarySolution()
 	{
-		//	Copy the current legal solution into the temporary solution storage.
-		memcpy(m_MemosTemp, m_Memos, sizeof(*m_MemosTemp) * m_Columns * m_Rows);
-
-		//	Repeatedly call SolveAll() and handle the return value.
-		while (true)
-		{
-			switch (SolveAll())
-			{
-			case SOLVE_NO_CHANGE:
-				CommitTemporarySolution();
-				break;
-			case SOLVE_CHANGED:
-				continue;
-			case SOLVE_CONTRADICTION:
-				if (m_LastUserColumn != -1 && m_LastUserRow != -1 && m_LastUserMemo != MEMO_CONF)
-				{
-					//	Reset the memos to what they were before, minus the contradictory option selected by the user.
-					memcpy(m_MemosTemp, m_Memos, sizeof(*m_MemosTemp) * m_Columns * m_Rows);
-					m_MemosTemp[m_LastUserColumn * m_Rows + m_LastUserRow] = (MEMO_1 | MEMO_2 | MEMO_3 | MEMO_VOLT) ^ m_LastUserMemo;
-					m_UserConf[m_LastUserColumn * m_Rows + m_LastUserRow] = false;
-				}
-				else
-				{
-					//	A contradiction before even a single button was clicked means the board is not solvable.
-					break;
-				}
-				continue;
-			}
-
-			break;
-		}
+		if(m_Columns && m_Rows)
+			memcpy(m_Memos, m_MemosTemp, sizeof(*m_Memos) * m_Columns * m_Rows);
 	}
 
 	bool Solver::SolveLookupRecurse(unsigned int level, unsigned int elemCount)
@@ -577,10 +548,39 @@ namespace VF
 		return isAnythingChanged ? SOLVE_CHANGED : SOLVE_NO_CHANGE;
 	}
 
-	void Solver::CommitTemporarySolution()
+	void Solver::SolveUntilStable()
 	{
-		if(m_Columns && m_Rows)
-			memcpy(m_Memos, m_MemosTemp, sizeof(*m_Memos) * m_Columns * m_Rows);
+		//	Copy the current legal solution into the temporary solution storage.
+		memcpy(m_MemosTemp, m_Memos, sizeof(*m_MemosTemp) * m_Columns * m_Rows);
+
+		//	Repeatedly call SolveAll() and handle the return value.
+		while (true)
+		{
+			switch (SolveAll())
+			{
+			case SOLVE_NO_CHANGE:
+				CommitTemporarySolution();
+				break;
+			case SOLVE_CHANGED:
+				continue;
+			case SOLVE_CONTRADICTION:
+				if (m_LastUserColumn != -1 && m_LastUserRow != -1 && m_LastUserMemo != MEMO_CONF)
+				{
+					//	Reset the memos to what they were before, minus the contradictory option selected by the user.
+					memcpy(m_MemosTemp, m_Memos, sizeof(*m_MemosTemp) * m_Columns * m_Rows);
+					m_MemosTemp[m_LastUserColumn * m_Rows + m_LastUserRow] = (MEMO_1 | MEMO_2 | MEMO_3 | MEMO_VOLT) ^ m_LastUserMemo;
+					m_UserConf[m_LastUserColumn * m_Rows + m_LastUserRow] = false;
+				}
+				else
+				{
+					//	A contradiction before even a single button was clicked means the board is not solvable.
+					break;
+				}
+				continue;
+			}
+
+			break;
+		}
 	}
 
 	void Solver::PrintBoard() const

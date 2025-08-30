@@ -51,8 +51,8 @@ namespace VF
 		//	Reset all memos that are not user-confirmed.
 		void ResetMemos();
 
-		//	Repeatedly call Solve() until no more changes are possible, or a contradiction is encountered.
-		void SolveUntilStable();
+		//	Commit the current temporary solution as the new legal solution.
+		void CommitTemporarySolution();
 
 		bool SolveLookupRecurse(unsigned int level, unsigned int elemCount);
 
@@ -61,8 +61,8 @@ namespace VF
 		//	Does one solving iteration over all temporary rows and columns, returns whether anything was changed.
 		SOLVE_RESULT SolveAll();
 
-		//	Commit the current temporary solution as the new legal solution.
-		void CommitTemporarySolution();
+		//	Repeatedly call SolveAll() until no more changes are possible, or a contradiction is encountered.
+		void SolveUntilStable();
 
 		bool m_IsLookupInitialized;
 
