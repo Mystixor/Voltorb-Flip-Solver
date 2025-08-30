@@ -40,13 +40,27 @@ namespace VF
 	{
 		for (unsigned int i = 0; i < max(m_Columns, m_Rows); i++)
 		{
+			unsigned int missingFields = i + 1;	//	Count of fields that are unknown
+			unsigned int possibilities = SQUARE(missingFields + 1);	//	Count of all different possibilities at this count of unknown fields
+			
+			for (unsigned int j = 0; j < possibilities; j++)
+			{
+				delete[] m_Lookups[i][j];
+			}
 			delete[] m_Lookups[i];
+			delete[] m_LookupCounts[i];
 		}
 		delete[] m_Lookups;
+		delete[] m_LookupCounts;
 
 		delete[] m_UserConf;
 
+		delete[] m_LookupTemp;
+		delete[] m_PossibilitiesTempOut;
+		delete[] m_PossibilitiesTempIn;
+
 		delete[] m_MemosTemp;
+		delete[] m_Memos;
 
 		delete[] m_vVolt;
 		delete[] m_uVolt;
